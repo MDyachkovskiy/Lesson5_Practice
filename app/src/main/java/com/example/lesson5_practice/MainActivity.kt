@@ -20,22 +20,29 @@ class MainActivity : AppCompatActivity() {
         }
         with(binding) {
             ok.setOnClickListener {
-                val urlText = this.url.text.toString()
-                val uri = URL(urlText)
+                val uri = URL(this.url.text.toString())
                 val urlConnection: HttpsURLConnection = (uri.openConnection() as HttpsURLConnection)
                     .apply {
-                            connectTimeout = 1000
-                            readTimeout = 1000
+                        requestMethod = "GET"
+                        connectTimeout = 10000
+                        readTimeout = 10000
                     }
 
                 Thread {
                     val buffer = BufferedReader(InputStreamReader(urlConnection.inputStream))
                     val result = getLinesAsOneBigString(buffer)
                     runOnUiThread {
-                        this.webview.loadData(result, "text/html; utf-8", "utf-88")
+                        this.webview.loadDataWithBaseURL(
+                            null,
+                            result,
+                            "text/html; charset=utf-8",
+                            "utf-8",
+                        null
+                            )
                     }
                 }.start()
 
+                urlConnection.disconnect()
             }
         }
     }
